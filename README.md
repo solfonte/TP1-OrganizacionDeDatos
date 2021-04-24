@@ -1,5 +1,5 @@
 # TP1-OrganizacionDeDatos
-## <Parte 1>
+## < Parte 1 >
 ## FIUFIP: Que No Se Escape Nadie (?)
 
 ### Introducción:
