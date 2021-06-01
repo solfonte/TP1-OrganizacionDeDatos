@@ -1,5 +1,5 @@
 .ipynb_checkpoints
 impuestos.csv
 __pycache__
-impuestos_test.csv
+impuestos_train.csv
 impuestos_val.csv
