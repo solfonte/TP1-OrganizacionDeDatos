@@ -1,6 +1,7 @@
 import requests
 import numpy as np
 import pandas as pd
+from sklearn import preprocessing
 
 DATA_VALIDATION = "impuestos_val.csv"
 DATA_TRAIN = "impuestos_train.csv"
@@ -27,21 +28,36 @@ def cargarDatasets():
     return x,y
 
 def prepararSetDeEntrenamiento(train_df:pd.DataFrame):
-    #dropeamos algunas columnas supongo como las de religion, horas de trabajo registradas
-    #no se si estaria bien borrar las filas que borrabamos en el primer tp
-    train_df.drop(columns=['religion','horas_trabajo_registradas'], inplace=True)
+    
     train_df.fillna(np.nan, inplace = True)
 
     train_df['categoria_de_trabajo'] = train_df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
     train_df['trabajo'] = train_df['trabajo'].replace(np.nan, 'No respondio')
     train_df['barrio'] = train_df['barrio'].replace(np.nan, 'Otro Barrio')
 
-    #train_df = conversionDeVariablesCategoricas(train_df)
-
     return train_df
 
 def prepararSetDeValidacion(validation_df:pd.DataFrame):
-    #borro el id porque no se q es seguro no sirve
-    #representatividad_poblacional  tampoco se q es wtf
-    validation_df.drop(columns=['religion','id','representatividad_poblacional'], inplace=True)
+    #quizas no sea necesaria ya que no se le hace nada a este set
     return validation_df
+
+def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
+    #dropeamos algunas columnas supongo como las de religion, horas de trabajo registradas
+    
+    """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
+    
+    df.drop(columns=['religion','horas_trabajo_registradas','barrio'], inplace=True)
+    
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo', 'educacion_alcanzada']
+    
+    
+    df = pd.get_dummies(df, drop_first = True, columns = categories)
+    
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
