@@ -46,10 +46,10 @@ def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
     
-    df.drop(columns=['religion','horas_trabajo_registradas','barrio'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas'], inplace=True)
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo', 'educacion_alcanzada']
+                  'rol_familiar_registrado', 'trabajo', 'educacion_alcanzada','barrio']
     
     
     df = pd.get_dummies(df, drop_first = True, columns = categories)
