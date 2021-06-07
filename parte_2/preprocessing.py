@@ -64,27 +64,57 @@ def oneHotEncodingArbol(df:pd.DataFrame):
     
     return df
 
+
+
+def encodearEducacion(educacion):
+    if educacion.find("1-4_grado") >= 0:
+        return 1
+    elif educacion.find("5-6_grado") >= 0:
+        return 2
+    elif educacion.find("7-8_grado") >= 0:
+        return 3
+    elif educacion.find("9_grado") >= 0:
+        return 4
+    if educacion.find("1_anio") >= 0:
+        return 5
+    elif educacion.find("2_anio") >= 0:
+        return 6
+    elif educacion.find("3_anio") >= 0:
+        return 7
+    elif educacion.find("4_anio") >= 0:
+        return 8
+    if educacion.find("5_anio") >= 0:
+        return 9
+    elif educacion.find("universidad_1_anio") >= 0:
+        return 10
+    elif educacion.find("universidad_2_anio") >= 0:
+        return 11
+    elif educacion.find("universidad_3_anio") >= 0:
+        return 12
+    elif educacion.find("universidad_4_anio") >= 0:
+        return 13
+    elif educacion.find("universidad_5_anio") >= 0:
+        return 14
+    elif educacion.find("universidad_6_anio") >= 0:
+        return 15
+    else:
+        return 0
+
+
 def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
     #no ordena bien segun el anio
-    oe = OrdinalEncoder(dtype='int')
-    columns_to_encode = ['educacion_alcanzada']
-    try:
-        df[['educacion_alcanzada_encoded']] = oe.fit_transform(df[columns_to_encode])
-    except Exception as upa:
-        print(f'Apa lalanga: {upa}')
-
+    df['educacion_alcanzada_encoded'] = 0
+    df['educacion_alcanzada_encoded'] = df['educacion_alcanzada'].apply(encodearEducacion)
     return df
 
 def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     #dropeamos algunas columnas supongo como las de religion, horas de trabajo registradas
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
-    
-    
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio'], inplace=True)
-    
+
     df = oneHotEncodingArbol(df)
     df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
