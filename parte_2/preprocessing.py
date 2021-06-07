@@ -3,6 +3,18 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+from sklearn.preprocessing import (
+    KBinsDiscretizer,
+    LabelEncoder,
+    MinMaxScaler,
+    Normalizer,
+    OneHotEncoder,
+    OrdinalEncoder,
+    PowerTransformer,
+    RobustScaler,
+    StandardScaler,
+)
+
 DATA_VALIDATION = "impuestos_val.csv"
 DATA_TRAIN = "impuestos_train.csv"
 DATA_VALIDATION_URL = "https://docs.google.com/spreadsheets/d/1ObsojtXfzvwicsFieGINPx500oGbUoaVTERTc69pzxE/export?format=csv"
@@ -41,18 +53,38 @@ def prepararSetDeValidacion(validation_df:pd.DataFrame):
     #quizas no sea necesaria ya que no se le hace nada a este set
     return validation_df
 
+
+def oneHotEncodingArbol(df:pd.DataFrame):
+    
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    
+    
+    df = pd.get_dummies(df, drop_first = True, columns = categories)
+    
+    return df
+
+def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
+    #no ordena bien segun el anio
+    oe = OrdinalEncoder(dtype='int')
+    columns_to_encode = ['educacion_alcanzada']
+    try:
+        df[['educacion_alcanzada_encoded']] = oe.fit_transform(df[columns_to_encode])
+    except Exception as upa:
+        print(f'Apa lalanga: {upa}')
+
+    return df
+
 def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     #dropeamos algunas columnas supongo como las de religion, horas de trabajo registradas
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
     
-    df.drop(columns=['religion','horas_trabajo_registradas'], inplace=True)
     
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo', 'educacion_alcanzada','barrio']
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio'], inplace=True)
     
-    
-    df = pd.get_dummies(df, drop_first = True, columns = categories)
+    df = oneHotEncodingArbol(df)
+    df = ordinalEncodingEducacionAlcanzada(df)
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
