@@ -54,17 +54,14 @@ def prepararSetDeValidacion(validation_df:pd.DataFrame):
     return validation_df
 
 
-def oneHotEncodingArbol(df:pd.DataFrame):
+def oneHotEncodingArbol1(df:pd.DataFrame):
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     
-    
     df = pd.get_dummies(df, drop_first = True, columns = categories)
     
     return df
-
-
 
 def encodearEducacion(educacion):
     if educacion.find("1-4_grado") >= 0:
@@ -112,9 +109,9 @@ def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
 
-    df = oneHotEncodingArbol(df)
+    df = oneHotEncodingArbol1(df)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'], inplace=True)
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
