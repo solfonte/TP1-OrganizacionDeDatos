@@ -123,3 +123,28 @@ def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
+
+def oneHotEncodingCodificar(df:pd.DataFrame):
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    
+    df = pd.get_dummies(df, drop_first = True, columns = categories)
+    return df
+
+def normalizar(df:pd.DataFrame):
+    return (df - df.mean()) / df.std()
+
+def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
+    
+    df = oneHotEncodingCodificar(df)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
