@@ -57,7 +57,19 @@ def prepararSetDeValidacion(validation_df:pd.DataFrame):
 def oneHotEncodingArbol1(df:pd.DataFrame):
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+              'rol_familiar_registrado', 'trabajo']
+    
+    #categories = ['genero','trabajo']
+    
+    df = pd.get_dummies(df, drop_first = True, columns = categories)
+    
+    return df
+
+def oneHotEncodingArbol2(df:pd.DataFrame):
+    
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
+
     
     df = pd.get_dummies(df, drop_first = True, columns = categories)
     
@@ -105,13 +117,15 @@ def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
     return df
 
 def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
-    #dropeamos algunas columnas supongo como las de religion, horas de trabajo registradas
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
-
+    
     df = oneHotEncodingArbol1(df)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'], inplace=True)
+    
+    df.drop(columns=
+      ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
+   
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
@@ -120,6 +134,57 @@ def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
+
+def reducirTrabajos(df:pd.DataFrame):
+    #para agregar a la explcacion: juntamos al ejercito, domestico y limpiador con "otros" ya que son
+    #similares en cuanto a poder adquisitivo y tienen pocos encuestados 
+    df['trabajo'] = df['trabajo'].replace('limpiador', 'otros')
+    df['trabajo'] = df['trabajo'].replace('servicio_domestico', 'otros')
+    df['trabajo'] = df['trabajo'].replace('ejercito', 'otros')
+    return df
+
+def reducirCategorias(df:pd.DataFrame):
+    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
+    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
+    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_municipal', 'empleadao_estatal')
+    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_provincial', 'empleadao_estatal')
+
+    return df
+
+def reducirEstadoMarital(df:pd.DataFrame):
+    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
+    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
+    df['estado_marital'] = df['estado_marital'].replace('divorciado', 'sin_matrimonio')
+    df['estado_marital'] = df['estado_marital'].replace('pareja_no_presente', 'sin_matrimonio')
+    df['estado_marital'] = df['estado_marital'].replace('separado', 'sin_matrimonio')
+    df['estado_marital'] = df['estado_marital'].replace('viudo_a', 'sin_matrimonio')
+    
+    df['estado_marital'] = df['estado_marital'].replace('matrimonio_civil', 'matrimonio')
+    df['estado_marital'] = df['estado_marital'].replace('matrimonio_militar', 'matrimonio')
+
+    return df
+
+
+def ingenieriaDeFeauturesArboles2(df:pd.DataFrame):
+    
+    #refactorizar con ingenieria de feautures arbol 1
+    df = reducirTrabajos(df)
+    df = reducirCategorias(df)
+    df = reducirEstadoMarital(df)
+    df = oneHotEncodingArbol2(df)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'], inplace=True)
+    
+    
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder 
+
+    
 
 def oneHotEncodingCodificar(df:pd.DataFrame):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
