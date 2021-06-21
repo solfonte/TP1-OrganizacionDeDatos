@@ -210,3 +210,18 @@ def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
+
+def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
+    df = oneHotEncodingCodificar(df)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
+
+    
