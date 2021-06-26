@@ -219,11 +219,10 @@ def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
 
 def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
     
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo']
+    categories = [ 'estado_marital', 'genero']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',    'rol_familiar_registrado', 'categoria_de_trabajo', 'trabajo'], inplace=True)
     df = normalizar(df)
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
