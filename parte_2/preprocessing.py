@@ -238,3 +238,28 @@ def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
     X, y, df, label_encoder = ingenieriaDeFeaturesKnn(df)
     
     return X, y, df, label_encoder
+
+def meanEncoding(df:pd.Dataframe,categories):
+    ##anda malllll
+    for cat in categories:
+        df[cat] = df[cat].astype("cat")    
+    
+    resultado = df.groupby('cat').agg({'label':'mean'}).to_dict()
+    print(resultado)
+
+def ingenieriaDeFeauturesGradientBoosting(df:pd.DataFrame):
+
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    
+    df = meanEncoding(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder 
