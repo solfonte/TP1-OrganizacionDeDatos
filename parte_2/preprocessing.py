@@ -232,7 +232,7 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
-    
+#meanencoding    
 def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
     #deberia sacar los anios estudiados porque se correlaciona con la educacion alcanzada.
     X, y, df, label_encoder = ingenieriaDeFeaturesKnn(df)
