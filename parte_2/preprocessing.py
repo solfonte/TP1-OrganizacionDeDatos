@@ -116,7 +116,7 @@ def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
     df['educacion_alcanzada_encoded'] = df['educacion_alcanzada'].apply(encodearEducacion)
     return df
 
-def ingenieriaDeFeauturesArboles1(df:pd.DataFrame):
+def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):
     
     """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
     
@@ -170,7 +170,7 @@ def reducirEstadoMarital(df:pd.DataFrame):
     return df
 
 
-def ingenieriaDeFeauturesArboles2(df:pd.DataFrame):
+def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     
     #refactorizar con ingenieria de feautures arbol 1
     df = reducirTrabajos(df)
@@ -239,13 +239,13 @@ def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
     
     return X, y, df, label_encoder
 
-def meanEncoding(df:pd.Dataframe,categories):
+#def meanEncoding(df:pd.Dataframe,categories):
     ##anda malllll
-    for cat in categories:
-        df[cat] = df[cat].astype("cat")    
+    #for cat in categories:
+     #   df[cat] = df[cat].astype("cat")    
     
-    resultado = df.groupby('cat').agg({'label':'mean'}).to_dict()
-    print(resultado)
+   # resultado = df.groupby('cat').agg({'label':'mean'}).to_dict()
+    #print(resultado)
 
 def ingenieriaDeFeauturesGradientBoosting(df:pd.DataFrame):
 
