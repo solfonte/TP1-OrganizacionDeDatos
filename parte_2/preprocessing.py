@@ -46,11 +46,15 @@ def prepararSetDeEntrenamiento(train_df:pd.DataFrame):
     train_df['categoria_de_trabajo'] = train_df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
     train_df['trabajo'] = train_df['trabajo'].replace(np.nan, 'No respondio')
     train_df['barrio'] = train_df['barrio'].replace(np.nan, 'Otro Barrio')
-
+    
     return train_df
 
 def prepararSetDeValidacion(validation_df:pd.DataFrame):
-    #quizas no sea necesaria ya que no se le hace nada a este set
+    
+    validation_df = prepararSetDeEntrenamiento(validation_df)
+    
+    validation_df.drop(columns = ['representatividad_poblacional'])
+    
     return validation_df
 
 
