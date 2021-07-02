@@ -63,8 +63,6 @@ def oneHotEncodingArbol1(df:pd.DataFrame):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     
-    #categories = ['genero','trabajo']
-    
     df = pd.get_dummies(df, drop_first = True, columns = categories)
     
     return df
@@ -115,7 +113,7 @@ def encodearEducacion(educacion):
 
 
 def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
-    #no ordena bien segun el anio
+ 
     df['educacion_alcanzada_encoded'] = 0
     df['educacion_alcanzada_encoded'] = df['educacion_alcanzada'].apply(encodearEducacion)
     return df
@@ -298,7 +296,7 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
-def prepararSetDeHoldOutParaArbol(df):
+def prepararSetDeHoldOutArbol(df):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     
@@ -306,4 +304,28 @@ def prepararSetDeHoldOutParaArbol(df):
     df = ordinalEncodingEducacionAlcanzada(df)
     
     df.drop(columns=   ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
+    return df
+
+def prepararSetDeHoldOutBoosting(df):
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    
+    df = meanEncoding(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    
+    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+ 
+    return df
+
+def prepararSetDeHoldOutRegresion(df):
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    
+    df = oneHotEncodingCodificar(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional'], inplace=True)
+    
+    df = normalizar(df)
+
     return df
