@@ -50,7 +50,7 @@ def prepararSetDeEntrenamiento(train_df:pd.DataFrame):
     return train_df
 
 def prepararSetDeValidacion(validation_df:pd.DataFrame):
-    
+    #hay q borrar esta funcion
     validation_df = prepararSetDeEntrenamiento(validation_df)
     
     validation_df.drop(columns = ['representatividad_poblacional'])
@@ -127,8 +127,6 @@ def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     
-    #categories = ['genero','trabajo']
-    
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     
@@ -176,7 +174,6 @@ def reducirEstadoMarital(df:pd.DataFrame):
 
 def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     
-    #refactorizar con ingenieria de feautures arbol 1
     df = reducirTrabajos(df)
     df = reducirCategorias(df)
     df = reducirEstadoMarital(df)
@@ -191,7 +188,7 @@ def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder 
@@ -300,3 +297,13 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
+
+def prepararSetDeHoldOutParaArbol(df):
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+              'rol_familiar_registrado', 'trabajo']
+    
+    df = oneHotEncodingCodificar(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    
+    df.drop(columns=   ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
+    return df
