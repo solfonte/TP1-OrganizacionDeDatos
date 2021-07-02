@@ -236,29 +236,21 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
-#meanencoding    
-def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
-    #deberia sacar los anios estudiados porque se correlaciona con la educacion alcanzada.
-    X, y, df, label_encoder = ingenieriaDeFeaturesKnn(df)
-    
-    return X, y, df, label_encoder
 
-#def meanEncoding(df:pd.Dataframe,categories):
-    ##anda malllll
-    #for cat in categories:
-     #   df[cat] = df[cat].astype("cat")    
-    
-   # resultado = df.groupby('cat').agg({'label':'mean'}).to_dict()
-    #print(resultado)
+def meanEncoding(df:pd.DataFrame,categories):
+    for cat in categories: 
+        categoriaEncodeada = df.groupby([cat])['tiene_alto_valor_adquisitivo'].mean().to_dict()
+        df[cat] =  df[cat].map(categoriaEncodeada)
+    return df
 
-def ingenieriaDeFeauturesGradientBoosting(df:pd.DataFrame):
+def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
 
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     
     df = meanEncoding(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
@@ -285,4 +277,26 @@ def ingenieriaDeFeaturesCategoricalNB(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder 
+   
+def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
     
+    X, y, df, label_encoder = ingenieriaDeFeaturesKnn(df)
+    
+    return X, y, df, label_encoder
+
+def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
+    
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+                  'rol_familiar_registrado', 'trabajo']
+    df = meanEncoding(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
