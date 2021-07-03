@@ -233,17 +233,20 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
 
 
 def meanEncoding(df:pd.DataFrame,categories):
+    meanEncodedCategories = {}
     for cat in categories: 
         categoriaEncodeada = df.groupby([cat])['tiene_alto_valor_adquisitivo'].mean().to_dict()
         df[cat] =  df[cat].map(categoriaEncodeada)
-    return df
+        meanEncodedCategories[cat] = categoriaEncodeada
+        
+    return df,meanEncodedCategories
 
 def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
 
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     
-    df = meanEncoding(df,categories)
+    df,me = meanEncoding(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
@@ -253,7 +256,7 @@ def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
     X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
-    return X, y, df, label_encoder 
+    return X, y, df, label_encoder, me 
 
 def codificacionOrdinal(df, categories):
     encoder = OrdinalEncoder()
@@ -283,7 +286,8 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
-    df = meanEncoding(df,categories)
+    
+    df,me = meanEncoding(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
@@ -294,7 +298,7 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
-    return X, y, df, label_encoder
+    return X, y, df, label_encoder,me
 
 def prepararSetDeHoldOutArbol(df):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
@@ -306,14 +310,21 @@ def prepararSetDeHoldOutArbol(df):
     df.drop(columns=   ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
     return df
 
-def prepararSetDeHoldOutBoosting(df):
+def completarConMeanEncoding(df,meanEncoding):
+    
+    for cat in meanEncoding.keys():
+        df[cat] =  df[cat].map(meanEncoding[cat])
+    return df
+
+def prepararSetDeHoldOutBoosting(df,meanEncoding):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     
-    df = meanEncoding(df,categories)
+    df = prepararSetDeEntrenamiento(df)
+    df = completarConMeanEncoding(df,meanEncoding)
     df = ordinalEncodingEducacionAlcanzada(df)
     
-    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional'], inplace=True)
  
     return df
 
@@ -321,6 +332,7 @@ def prepararSetDeHoldOutRegresion(df):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     
+    df = prepararSetDeEntrenamiento(df)
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     
