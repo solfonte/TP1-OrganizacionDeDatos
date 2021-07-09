@@ -276,9 +276,11 @@ def ingenieriaDeFeaturesCategoricalNB(df:pd.DataFrame):
 
     return X, y, df, label_encoder 
 def ingenieriaDeFeaturesGaussianNB(df:pd.DataFrame):
-    df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',
+    
+    df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada', 
                        'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
                        'rol_familiar_registrado'], inplace = True)
+    
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
     X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
@@ -310,6 +312,25 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
 
     return X, y, df, label_encoder,me
 
+def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
+    
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
+    df = oneHotEncodingCodificar(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
+                    'rol_familiar_registrado'], inplace=True)
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
+
+    
+    
+    
 
 def prepararSetDeHoldOutArbol(df):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
@@ -320,13 +341,14 @@ def prepararSetDeHoldOutArbol(df):
     
     df.drop(columns=   ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
     return df
+
 def prepararSetDeHoldOutKNN(df):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
-                    'anios_estudiados'],inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    
     df = normalizar(df)
     return df
     
@@ -360,4 +382,26 @@ def prepararSetDeHoldOutRegresion(df):
     
     df = normalizar(df)
 
+    return df
+def prepararHoldOut(df):
+    df.fillna(np.nan, inplace = True)
+
+    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
+    df['trabajo'] = df['trabajo'].replace(np.nan, 'No respondio')
+    df['barrio'] = df['barrio'].replace(np.nan, 'Otro Barrio')
+    
+    return df
+    
+def prepararSetDeHoldOutCategoricalNB(df):
+    categories = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo']
+    df = codificacionOrdinal(df, categories)
+    df.drop(columns = ['religion', 'edad', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',  
+                       'rol_familiar_registrado', 'ganancia_perdida_declarada_bolsa_argentina',   
+                       'anios_estudiados', 'id', 'representatividad_poblacional'], inplace = True)
+    return df
+
+def prepararSetDeHoldOutGaussianNB(df):
+    df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',
+                       'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
+                       'rol_familiar_registrado',  'id', 'representatividad_poblacional'], inplace = True)
     return df
