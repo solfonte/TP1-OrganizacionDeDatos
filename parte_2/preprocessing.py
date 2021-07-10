@@ -318,7 +318,7 @@ def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
-                    'rol_familiar_registrado'], inplace=True)
+                    'rol_familiar_registrado', 'anios_estudiados'], inplace=True)
     df = normalizar(df)
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
