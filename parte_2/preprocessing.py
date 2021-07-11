@@ -211,22 +211,22 @@ def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
 
 def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
     
-    categories = [ 'estado_marital', 'genero']
+    categories = ['estado_marital', 'genero', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',    'rol_familiar_registrado', 'categoria_de_trabajo', 'trabajo'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',    'rol_familiar_registrado', 'categoria_de_trabajo'], inplace=True)
     df = normalizar(df)
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
@@ -329,7 +329,14 @@ def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
     return X, y, df, label_encoder
 
     
-    
+def prepararSetDeHoldOutRedes(df):
+    categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
+    df = oneHotEncodingCodificar(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
+                    'rol_familiar_registrado', 'anios_estudiados','id','representatividad_poblacional'], inplace=True)
+    df = normalizar(df)
+    return df
     
 
 def prepararSetDeHoldOutArbol(df):
@@ -339,7 +346,7 @@ def prepararSetDeHoldOutArbol(df):
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     
-    df.drop(columns=   ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
+    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
     return df
 
 def prepararSetDeHoldOutKNN(df):
