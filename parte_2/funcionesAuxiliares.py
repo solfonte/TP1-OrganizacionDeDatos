@@ -45,24 +45,18 @@ def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
     return df
 
 def reducirTrabajos(df:pd.DataFrame):
-    #para agregar a la explcacion: juntamos al ejercito, domestico y limpiador con "otros" ya que son
-    #similares en cuanto a poder adquisitivo y tienen pocos encuestados 
     df['trabajo'] = df['trabajo'].replace('limpiador', 'otros')
     df['trabajo'] = df['trabajo'].replace('servicio_domestico', 'otros')
     df['trabajo'] = df['trabajo'].replace('ejercito', 'otros')
     return df
 
 def reducirCategorias(df:pd.DataFrame):
-    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
-    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
     df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_municipal', 'empleadao_estatal')
     df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_provincial', 'empleadao_estatal')
 
     return df
 
 def reducirEstadoMarital(df:pd.DataFrame):
-    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
-    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
     df['estado_marital'] = df['estado_marital'].replace('divorciado', 'sin_matrimonio')
     df['estado_marital'] = df['estado_marital'].replace('pareja_no_presente', 'sin_matrimonio')
     df['estado_marital'] = df['estado_marital'].replace('separado', 'sin_matrimonio')
@@ -93,14 +87,6 @@ def codificacionOrdinal(df, categories):
     encoder = OrdinalEncoder()
     df[categories] = encoder.fit_transform(df[categories])
     return df
-
-def pasarAFloat32(df):
-    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].asType(np.float32)
-    df['estado_marital'] = df['estado_marital'].asType(np.float32)
-    df['genero'] = df['genero'].asType(np.float32)
-    df['trabajo'] = df['trabajo'].asType(np.float32)
-    
-    return df;
 
 def completarConMeanEncoding(df,meanEncoding):
     
