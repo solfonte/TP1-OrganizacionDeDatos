@@ -275,6 +275,20 @@ def ingenieriaDeFeaturesCategoricalNB(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder 
+def ingenieriaDeFeaturesCategoricalNB2(df:pd.DataFrame):
+    categories = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo']
+    df,me = meanEncoding(df,categories)
+    df.drop(columns = ['religion', 'edad', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',  
+                       'rol_familiar_registrado', 'ganancia_perdida_declarada_bolsa_argentina',   
+                       'anios_estudiados'], inplace = True)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder, me
+    
+        
 def ingenieriaDeFeaturesGaussianNB(df:pd.DataFrame):
     
     df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada', 
@@ -311,6 +325,21 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder,me
+def ingenieriaDeFeaturesKnn2(df:pd.DataFrame):
+    
+    categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
+    df, me = meanEncoding(df, categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder,me
 
 def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
     
@@ -328,6 +357,29 @@ def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
+def pasarAFloat32(df):
+    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].asType(np.float32)
+    df['estado_marital'] = df['estado_marital'].asType(np.float32)
+    df['genero'] = df['genero'].asType(np.float32)
+    df['trabajo'] = df['trabajo'].asType(np.float32)
+    
+    return df;
+def ingenieriaDeFeaturesRedes2(df:pd.DataFrame):
+    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
+    df, me = meanEncoding(df, categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
+                    'anios_estudiados', 'rol_familiar_registrado'], inplace=True)
+    #df = pasarAFloat32(df)
+    df = normalizar(df)
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder,me
+    
     
 def prepararSetDeHoldOutRedes(df):
     categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
@@ -349,12 +401,12 @@ def prepararSetDeHoldOutArbol(df):
     df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
     return df
 
-def prepararSetDeHoldOutKNN(df):
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo']
-    df = oneHotEncodingCodificar(df,categories)
+def prepararSetDeHoldOutKNN(df, meanEncoding):
+    categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
+    df = completarConMeanEncoding(df, meanEncoding)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
+                     'id','representatividad_poblacional'], inplace=True)
     
     df = normalizar(df)
     return df
