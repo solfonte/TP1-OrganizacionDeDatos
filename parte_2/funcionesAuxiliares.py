@@ -3,6 +3,21 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+def ingenieriaDeFeaturesOH(df:pd.DataFrame,categoriasCodificar,categoriasEliminar):
+    df = oneHotEncodingCodificar(df,categoriasCodificar)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns = categoriasEliminar,inplace=True)
+    return df
+
+def finalizarIngenieriaDeFeatures(df:pd.DataFrame):
+    label_encoder = preprocessing.LabelEncoder()
+    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
+    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+
+    return X, y, df, label_encoder
+
 def encodearEducacion(educacion):
     if educacion.find("1-4_grado") >= 0:
         return 1
@@ -93,3 +108,11 @@ def completarConMeanEncoding(df,meanEncoding):
     for cat in meanEncoding.keys():
         df[cat] =  df[cat].map(meanEncoding[cat])
     return df
+
+def ingenieriaDeFeaturesME(df:pd.DataFrame,categoriasCodificar,categoriasEliminar):
+    df,me = meanEncoding(df,categoriasCodificar)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    
+    df.drop(columns = categoriasEliminar, inplace=True)
+    
+    return df,me
