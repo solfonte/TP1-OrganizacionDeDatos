@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+from funcionesAuxiliares import *
+
+
 from sklearn.preprocessing import (
     KBinsDiscretizer,
     LabelEncoder,
@@ -39,89 +42,15 @@ def cargarDatasets():
     y = pd.read_csv(DATA_VALIDATION)
     return x,y
 
-def prepararSetDeEntrenamiento(train_df:pd.DataFrame):
-    
+def prepararSetDeEntrenamiento(train_df:pd.DataFrame): 
     train_df.fillna(np.nan, inplace = True)
-
     train_df['categoria_de_trabajo'] = train_df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
     train_df['trabajo'] = train_df['trabajo'].replace(np.nan, 'No respondio')
     train_df['barrio'] = train_df['barrio'].replace(np.nan, 'Otro Barrio')
-    
     return train_df
 
-def prepararSetDeValidacion(validation_df:pd.DataFrame):
-    #hay q borrar esta funcion
-    validation_df = prepararSetDeEntrenamiento(validation_df)
-    
-    validation_df.drop(columns = ['representatividad_poblacional'])
-    
-    return validation_df
 
-
-def oneHotEncodingArbol1(df:pd.DataFrame):
-    
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-              'rol_familiar_registrado', 'trabajo']
-    
-    df = pd.get_dummies(df, drop_first = True, columns = categories)
-    
-    return df
-
-def oneHotEncodingArbol2(df:pd.DataFrame):
-    
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo']
-
-    
-    df = pd.get_dummies(df, drop_first = True, columns = categories)
-    
-    return df
-
-def encodearEducacion(educacion):
-    if educacion.find("1-4_grado") >= 0:
-        return 1
-    elif educacion.find("5-6_grado") >= 0:
-        return 2
-    elif educacion.find("7-8_grado") >= 0:
-        return 3
-    elif educacion.find("9_grado") >= 0:
-        return 4
-    if educacion.find("1_anio") >= 0:
-        return 5
-    elif educacion.find("2_anio") >= 0:
-        return 6
-    elif educacion.find("3_anio") >= 0:
-        return 7
-    elif educacion.find("4_anio") >= 0:
-        return 8
-    if educacion.find("5_anio") >= 0:
-        return 9
-    elif educacion.find("universidad_1_anio") >= 0:
-        return 10
-    elif educacion.find("universidad_2_anio") >= 0:
-        return 11
-    elif educacion.find("universidad_3_anio") >= 0:
-        return 12
-    elif educacion.find("universidad_4_anio") >= 0:
-        return 13
-    elif educacion.find("universidad_5_anio") >= 0:
-        return 14
-    elif educacion.find("universidad_6_anio") >= 0:
-        return 15
-    else:
-        return 0
-
-
-def ordinalEncodingEducacionAlcanzada(df:pd.DataFrame):
- 
-    df['educacion_alcanzada_encoded'] = 0
-    df['educacion_alcanzada_encoded'] = df['educacion_alcanzada'].apply(encodearEducacion)
-    return df
-
-def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):
-    
-    """Hace las transformaciones de datos necesarias para entrenar al arbol de decision."""
-    
+def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):    
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     
@@ -130,44 +59,14 @@ def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):
     
     df.drop(columns=
       ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
-   
     
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder
-
-def reducirTrabajos(df:pd.DataFrame):
-    #para agregar a la explcacion: juntamos al ejercito, domestico y limpiador con "otros" ya que son
-    #similares en cuanto a poder adquisitivo y tienen pocos encuestados 
-    df['trabajo'] = df['trabajo'].replace('limpiador', 'otros')
-    df['trabajo'] = df['trabajo'].replace('servicio_domestico', 'otros')
-    df['trabajo'] = df['trabajo'].replace('ejercito', 'otros')
-    return df
-
-def reducirCategorias(df:pd.DataFrame):
-    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
-    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
-    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_municipal', 'empleadao_estatal')
-    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace('empleado_provincial', 'empleadao_estatal')
-
-    return df
-
-def reducirEstadoMarital(df:pd.DataFrame):
-    #estos dos los juntamos prque tienen distribucion parecida de poder adquisitivo
-    #los de sin trabajo los vimos que estaban correlacionados en 1 con los No respondio
-    df['estado_marital'] = df['estado_marital'].replace('divorciado', 'sin_matrimonio')
-    df['estado_marital'] = df['estado_marital'].replace('pareja_no_presente', 'sin_matrimonio')
-    df['estado_marital'] = df['estado_marital'].replace('separado', 'sin_matrimonio')
-    df['estado_marital'] = df['estado_marital'].replace('viudo_a', 'sin_matrimonio')
-    
-    df['estado_marital'] = df['estado_marital'].replace('matrimonio_civil', 'matrimonio')
-    df['estado_marital'] = df['estado_marital'].replace('matrimonio_militar', 'matrimonio')
-
-    return df
 
 
 def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
@@ -190,14 +89,6 @@ def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder 
-   
-
-def oneHotEncodingCodificar(df:pd.DataFrame,categories):
-    df = pd.get_dummies(df, drop_first = True, columns = categories)
-    return df
-
-def normalizar(df:pd.DataFrame):
-    return (df - df.mean()) / df.std()
 
 def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
     
@@ -205,6 +96,7 @@ def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
                   'rol_familiar_registrado', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
+    
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     df = normalizar(df)
@@ -221,7 +113,7 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
     categories = ['estado_marital', 'genero', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',    'rol_familiar_registrado', 'categoria_de_trabajo'], inplace=True)
+    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','rol_familiar_registrado', 'categoria_de_trabajo'], inplace=True)
     df = normalizar(df)
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
@@ -231,16 +123,6 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
-
-def meanEncoding(df:pd.DataFrame,categories):
-    meanEncodedCategories = {}
-    for cat in categories: 
-        categoriaEncodeada = df.groupby([cat])['tiene_alto_valor_adquisitivo'].mean().to_dict()
-        df[cat] =  df[cat].map(categoriaEncodeada)
-        meanEncodedCategories[cat] = categoriaEncodeada
-        
-    return df,meanEncodedCategories
-
 def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
 
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
@@ -248,6 +130,7 @@ def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
     
     df,me = meanEncoding(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
+    
     df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     label_encoder = preprocessing.LabelEncoder()
@@ -257,11 +140,6 @@ def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder, me 
-
-def codificacionOrdinal(df, categories):
-    encoder = OrdinalEncoder()
-    df[categories] = encoder.fit_transform(df[categories])
-    return df
 
 def ingenieriaDeFeaturesCategoricalNB(df:pd.DataFrame):
     categories = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo']
@@ -321,10 +199,11 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder,me
+
 def ingenieriaDeFeaturesKnn2(df:pd.DataFrame):
     
     categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
@@ -336,13 +215,12 @@ def ingenieriaDeFeaturesKnn2(df:pd.DataFrame):
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])# se saca la variable target para evitar un leak en el   entrenamiento
+    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
     y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
     return X, y, df, label_encoder,me
 
 def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
-    
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
@@ -357,13 +235,7 @@ def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
-def pasarAFloat32(df):
-    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].asType(np.float32)
-    df['estado_marital'] = df['estado_marital'].asType(np.float32)
-    df['genero'] = df['genero'].asType(np.float32)
-    df['trabajo'] = df['trabajo'].asType(np.float32)
-    
-    return df;
+
 def ingenieriaDeFeaturesRedes2(df:pd.DataFrame):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
     df, me = meanEncoding(df, categories)
@@ -411,11 +283,6 @@ def prepararSetDeHoldOutKNN(df, meanEncoding):
     df = normalizar(df)
     return df
     
-def completarConMeanEncoding(df,meanEncoding):
-    
-    for cat in meanEncoding.keys():
-        df[cat] =  df[cat].map(meanEncoding[cat])
-    return df
 
 def prepararSetDeHoldOutBoosting(df,meanEncoding):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
@@ -441,14 +308,6 @@ def prepararSetDeHoldOutRegresion(df):
     
     df = normalizar(df)
 
-    return df
-def prepararHoldOut(df):
-    df.fillna(np.nan, inplace = True)
-
-    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
-    df['trabajo'] = df['trabajo'].replace(np.nan, 'No respondio')
-    df['barrio'] = df['barrio'].replace(np.nan, 'Otro Barrio')
-    
     return df
     
 def prepararSetDeHoldOutCategoricalNB(df):
