@@ -3,6 +3,19 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+from sklearn.preprocessing import (
+    KBinsDiscretizer,
+    LabelEncoder,
+    MinMaxScaler,
+    Normalizer,
+    OneHotEncoder,
+    OrdinalEncoder,
+    PowerTransformer,
+    RobustScaler,
+    StandardScaler,
+)
+
+
 def ingenieriaDeFeaturesOH(df:pd.DataFrame,categoriasCodificar,categoriasEliminar):
     df = oneHotEncodingCodificar(df,categoriasCodificar)
     df = ordinalEncodingEducacionAlcanzada(df)

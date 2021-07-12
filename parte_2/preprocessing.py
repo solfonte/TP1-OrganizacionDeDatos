@@ -42,12 +42,12 @@ def cargarDatasets():
     y = pd.read_csv(DATA_VALIDATION)
     return x,y
 
-def prepararSetDeEntrenamiento(train_df:pd.DataFrame): 
-    train_df.fillna(np.nan, inplace = True)
-    train_df['categoria_de_trabajo'] = train_df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
-    train_df['trabajo'] = train_df['trabajo'].replace(np.nan, 'No respondio')
-    train_df['barrio'] = train_df['barrio'].replace(np.nan, 'Otro Barrio')
-    return train_df
+def prepararSet(df:pd.DataFrame): 
+    df.fillna(np.nan, inplace = True)
+    df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
+    df['trabajo'] = df['trabajo'].replace(np.nan, 'No respondio')
+    df['barrio'] = df['barrio'].replace(np.nan, 'Otro Barrio')
+    return df
 
 
 def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):  
@@ -185,12 +185,13 @@ def prepararSetDeHoldOutArbol(df):
     categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada']
-    df = prepararSetDeEntrenamiento(df)
+    df = prepararSet(df)
     df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar) 
     return df
 
 def prepararSetDeHoldOutKNN(df, meanEncoding):
     categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
+    df = prepararSet(df)
     df = completarConMeanEncoding(df, meanEncoding)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
@@ -204,7 +205,7 @@ def prepararSetDeHoldOutBoosting(df,meanEncoding):
     categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
     categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional']
-    df = prepararSetDeEntrenamiento(df)
+    df = prepararSet(df)
     df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar) 
 
     return df
@@ -213,7 +214,8 @@ def prepararSetDeHoldOutRegresion(df):
     categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
     categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional']
-    df = prepararSetDeEntrenamiento(df)
+    df = prepararSet(df)
+
     df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar)
     df = normalizar(df)
 
