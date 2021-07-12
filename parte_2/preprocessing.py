@@ -50,16 +50,13 @@ def prepararSetDeEntrenamiento(train_df:pd.DataFrame):
     return train_df
 
 
-def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):    
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-              'rol_familiar_registrado', 'trabajo']
-    
-    df = oneHotEncodingCodificar(df,categories)
+def ingenieriaDeFeaturesOH(df:pd.DataFrame,categoriasCodificar,categoriasEliminar):
+    df = oneHotEncodingCodificar(df,categoriasCodificar)
     df = ordinalEncodingEducacionAlcanzada(df)
-    
-    df.drop(columns=
-      ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
-    
+    df.drop(columns = categoriasEliminar,inplace=True)
+    return df
+
+def finalizarIngenieriaDeFeatures(df:pd.DataFrame):
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
@@ -68,6 +65,13 @@ def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):
 
     return X, y, df, label_encoder
 
+def ingenieriaDeFeaturesArboles1(df:pd.DataFrame):  
+    categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+              'rol_familiar_registrado', 'trabajo']
+    categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada']
+    df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar) 
+    
+    return finalizarIngenieriaDeFeatures(df)
 
 def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     
@@ -81,16 +85,10 @@ def ingenieriaDeFeaturesArboles2(df:pd.DataFrame):
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'], inplace=True)
-    
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
+    return finalizarIngenieriaDeFeatures(df) 
 
-    return X, y, df, label_encoder 
-
-def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
+def ingenieriaDeFeaturesVariablesNormalizadas(df:pd.DataFrame):
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
@@ -100,13 +98,8 @@ def ingenieriaDeFeaturesKnn(df:pd.DataFrame):
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
-    return X, y, df, label_encoder
+    
+    return finalizarIngenieriaDeFeatures(df)
 
 def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
     
@@ -114,14 +107,9 @@ def ingenieriaDeFeaturesSVM(df:pd.DataFrame):
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','rol_familiar_registrado', 'categoria_de_trabajo'], inplace=True)
-    df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
+    df = normalizar(df) 
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
-    return X, y, df, label_encoder
+    return finalizarIngenieriaDeFeatures(df)
 
 def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
 
@@ -132,38 +120,27 @@ def ingenieriaDeFeaturesBoosting(df:pd.DataFrame):
     df = ordinalEncodingEducacionAlcanzada(df)
     
     df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
-    
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
+    X, y, df, label_encoder = finalizarIngenieriaDeFeatures(df)
     return X, y, df, label_encoder, me 
 
 def ingenieriaDeFeaturesCategoricalNB(df:pd.DataFrame):
+    
     categories = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo']
     df = codificacionOrdinal(df, categories)
     df.drop(columns = ['religion', 'edad', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',  
                        'rol_familiar_registrado', 'ganancia_perdida_declarada_bolsa_argentina',   
                        'anios_estudiados'], inplace = True)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
-    return X, y, df, label_encoder 
+    
+    return finalizarIngenieriaDeFeatures(df)
 def ingenieriaDeFeaturesCategoricalNB2(df:pd.DataFrame):
     categories = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo']
     df,me = meanEncoding(df,categories)
     df.drop(columns = ['religion', 'edad', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',  
                        'rol_familiar_registrado', 'ganancia_perdida_declarada_bolsa_argentina',   
                        'anios_estudiados'], inplace = True)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
+    
+    X, y, df, label_encoder = finalizarIngenieriaDeFeatures(df)
     return X, y, df, label_encoder, me
     
         
@@ -172,21 +149,10 @@ def ingenieriaDeFeaturesGaussianNB(df:pd.DataFrame):
     df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada', 
                        'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
                        'rol_familiar_registrado'], inplace = True)
-    
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
 
-    return X, y, df, label_encoder 
-   
-def ingenieriaDeFeauturesRegresion1(df:pd.DataFrame):
-    
-    X, y, df, label_encoder = ingenieriaDeFeaturesKnn(df)
-    
-    return X, y, df, label_encoder
+    return finalizarIngenieriaDeFeatures(df)
 
-def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
+def ingenieriaDeFeauturesVariablesNormalizadasME(df:pd.DataFrame):
     
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
                   'rol_familiar_registrado', 'trabajo']
@@ -196,29 +162,10 @@ def ingenieriaDeFeauturesRegresion2(df:pd.DataFrame):
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
     
     df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
+    
+    X, y, df, label_encoder = finalizarIngenieriaDeFeatures(df)
     return X, y, df, label_encoder,me
 
-def ingenieriaDeFeaturesKnn2(df:pd.DataFrame):
-    
-    categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
-    df, me = meanEncoding(df, categories)
-    df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'], inplace=True)
-    
-    df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
-    return X, y, df, label_encoder,me
 
 def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
     categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo']
@@ -227,13 +174,8 @@ def ingenieriaDeFeaturesRedes(df:pd.DataFrame):
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
                     'rol_familiar_registrado', 'anios_estudiados'], inplace=True)
     df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
-
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
-    return X, y, df, label_encoder
+    
+    return finalizarIngenieriaDeFeatures(df)
 
 
 def ingenieriaDeFeaturesRedes2(df:pd.DataFrame):
@@ -242,14 +184,9 @@ def ingenieriaDeFeaturesRedes2(df:pd.DataFrame):
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
                     'anios_estudiados', 'rol_familiar_registrado'], inplace=True)
-    #df = pasarAFloat32(df)
     df = normalizar(df)
-    label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df.tiene_alto_valor_adquisitivo)
 
-    X = df.drop(columns=['tiene_alto_valor_adquisitivo'])
-    y = label_encoder.transform(df.tiene_alto_valor_adquisitivo)
-
+    X, y, df, label_encoder = finalizarIngenieriaDeFeatures(df)
     return X, y, df, label_encoder,me
     
     
@@ -270,7 +207,7 @@ def prepararSetDeHoldOutArbol(df):
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
     
-    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','anios_estudiados'],inplace=True)
+    df.drop(columns= ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada'],inplace=True)
     return df
 
 def prepararSetDeHoldOutKNN(df, meanEncoding):
@@ -285,15 +222,12 @@ def prepararSetDeHoldOutKNN(df, meanEncoding):
     
 
 def prepararSetDeHoldOutBoosting(df,meanEncoding):
-    categories = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
-                  'rol_familiar_registrado', 'trabajo']
-    
+    categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
+              'rol_familiar_registrado', 'trabajo']
+    categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional']
     df = prepararSetDeEntrenamiento(df)
-    df = completarConMeanEncoding(df,meanEncoding)
-    df = ordinalEncodingEducacionAlcanzada(df)
-    
-    df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional'], inplace=True)
- 
+    df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar) 
+
     return df
 
 def prepararSetDeHoldOutRegresion(df):
