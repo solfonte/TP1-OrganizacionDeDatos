@@ -234,3 +234,13 @@ def prepararSetDeHoldOutGaussianNB(df):
                        'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
                        'rol_familiar_registrado',  'id', 'representatividad_poblacional'], inplace = True)
     return df
+
+def prepararSetDeHoldOutSvm(df):
+    categories = ['estado_marital', 'genero', 'trabajo']
+    df = oneHotEncodingCodificar(df,categories)
+    df = ordinalEncodingEducacionAlcanzada(df)
+    df.drop(columns ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
+                     'rol_familiar_registrado', 'categoria_de_trabajo',  'id', 
+                     'representatividad_poblacional'], inplace=True)
+    df = normalizar(df) 
+    return df
