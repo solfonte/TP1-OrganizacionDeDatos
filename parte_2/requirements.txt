@@ -1,0 +1,12 @@
+requerimientos para ejecutar correctamente el notebook:
+
+Se debe tener correctamente instaladas las siguientes bibliotecas:
+* pandas
+* sickit
+* sklearn
+* keras
+
+Luego para la visualizacion del arbol de decision, instalamos lo siguiente
+~$ pip3 install pydotplus
+~$ pip3 install tox
+~$ sudo apt install graphviz
