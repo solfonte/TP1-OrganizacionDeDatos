@@ -184,7 +184,7 @@ def prepararSetDeHoldOutRedes(df):
 def prepararSetDeHoldOutArbol(df):
     categoriasCodificar = [ 'categoria_de_trabajo', 'estado_marital', 'genero',
               'rol_familiar_registrado', 'trabajo']
-    categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada']
+    categoriasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','id','representatividad_poblacional']
     df = prepararSet(df)
     df = ingenieriaDeFeaturesOH(df,categoriasCodificar,categoriasEliminar) 
     return df
