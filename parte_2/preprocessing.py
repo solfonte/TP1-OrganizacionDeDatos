@@ -239,8 +239,7 @@ def prepararSetDeHoldOutSvm(df):
     categories = ['estado_marital', 'genero', 'trabajo']
     df = oneHotEncodingCodificar(df,categories)
     df = ordinalEncodingEducacionAlcanzada(df)
-    df.drop(columns = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
-                     'rol_familiar_registrado', 'categoria_de_trabajo',  'id', 
-                     'representatividad_poblacional'], inplace=True)
+    columnasEliminar = ['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada','rol_familiar_registrado', 'categoria_de_trabajo', 'id','representatividad_poblacional']
+    df.drop(columns = columnasEliminar, inplace=True)
     df = normalizar(df) 
     return df
