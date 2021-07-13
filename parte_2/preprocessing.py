@@ -191,7 +191,6 @@ def prepararSetDeHoldOutArbol(df):
 
 def prepararSetDeHoldOutKNN(df, meanEncoding):
     categories = ['categoria_de_trabajo', 'estado_marital', 'genero', 'trabajo', 'rol_familiar_registrado']
-    df = prepararSet(df)
     df = completarConMeanEncoding(df, meanEncoding)
     df = ordinalEncodingEducacionAlcanzada(df)
     df.drop(columns=['religion','horas_trabajo_registradas','edad','barrio','educacion_alcanzada',
