@@ -5,6 +5,7 @@ Se debe tener correctamente instaladas las siguientes bibliotecas:
 * sickit
 * sklearn
 * keras
+* matplot lib
 
 Luego para la visualizacion del arbol de decision, instalamos lo siguiente
 ~$ pip3 install pydotplus
