@@ -47,6 +47,7 @@ def prepararSet(df:pd.DataFrame):
     df['categoria_de_trabajo'] = df['categoria_de_trabajo'].replace(np.nan, 'No respondio')
     df['trabajo'] = df['trabajo'].replace(np.nan, 'No respondio')
     df['barrio'] = df['barrio'].replace(np.nan, 'Otro Barrio')
+    df['estado_marital'] = df['estado_marital'].replace(np.nan, 'No respondio')
     return df
 
 
@@ -128,12 +129,15 @@ def ingenieriaDeFeaturesCategoricalNB2(df:pd.DataFrame):
     
         
 def ingenieriaDeFeaturesGaussianNB(df:pd.DataFrame):
+    categoriasCodificar = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 'barrio',
+                         'trabajo', 'rol_familiar_registrado', 'estado_marital']
+    categoriasEliminar = ['religion', 'educacion_alcanzada']
     
-    df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada', 
-                       'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
-                       'rol_familiar_registrado'], inplace = True)
-
-    return finalizarIngenieriaDeFeatures(df)
+    df,me = ingenieriaDeFeaturesME(df,categoriasCodificar,categoriasEliminar)
+    
+    X, y, df, label_encoder = finalizarIngenieriaDeFeatures(df)
+    
+    return X, y, df, label_encoder,me
 
 def ingenieriaDeFeauturesVariablesNormalizadasME(df:pd.DataFrame):
     
@@ -228,10 +232,11 @@ def prepararSetDeHoldOutCategoricalNB(df):
                        'anios_estudiados', 'id', 'representatividad_poblacional'], inplace = True)
     return df
 
-def prepararSetDeHoldOutGaussianNB(df):
+def prepararSetDeHoldOutGaussianNB(df, meanEncoding):
+   
+    df = completarConMeanEncoding(df, meanEncoding)
     df.drop(columns = ['religion', 'horas_trabajo_registradas', 'barrio', 'educacion_alcanzada',
-                       'estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 
-                       'rol_familiar_registrado',  'id', 'representatividad_poblacional'], inplace = True)
+                        'genero', 'categoria_de_trabajo',  'id', 'representatividad_poblacional'], inplace = True)
     return df
 
 def prepararSetDeHoldOutSvm(df):
