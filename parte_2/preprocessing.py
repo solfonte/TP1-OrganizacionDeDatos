@@ -130,7 +130,7 @@ def ingenieriaDeFeaturesCategoricalNB2(df:pd.DataFrame):
         
 def ingenieriaDeFeaturesGaussianNB(df:pd.DataFrame):
     categoriasCodificar = ['estado_marital', 'genero', 'trabajo', 'categoria_de_trabajo', 'barrio',
-                         'trabajo', 'rol_familiar_registrado', 'estado_marital']
+                            'rol_familiar_registrado']
     categoriasEliminar = ['religion', 'educacion_alcanzada']
     
     df,me = ingenieriaDeFeaturesME(df,categoriasCodificar,categoriasEliminar)
